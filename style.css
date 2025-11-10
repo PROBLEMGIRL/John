@@ -53,6 +53,7 @@ body {
     padding: 20px;
     color: var(--text-primary);
 }
+
 /* ================================
    Loading Screen
    ================================ */
@@ -72,28 +73,43 @@ body {
     transition: opacity 0.5s ease;
 }
 
-#loading.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* 로딩 화면 로고 - 고정 크기 (반응형 X) */
+/* 로고 페이드인 애니메이션 추가 */
+#loading img,
 #loading .logo {
-    width: 450px;  /* 고정 크기 */
-    height: auto;
-    margin-bottom: 20px;
-    display: block;
+    animation: fadeInUp 1s ease-out forwards;
+    opacity: 0;
 }
 
-/* 나머지 로딩 요소들 */
-.loader {
-    width: 60px;
-    height: 60px;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
+/* 로딩 텍스트도 순차적으로 나타나게 */
+#loading p,
+#loading-text {
+    font-size: 1.3rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+    animation: fadeInUp 1s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+#loading small,
+#loading-detail {
+    font-size: 0.9rem;
+    opacity: 0;
+    color: white;
+    animation: fadeInUp 1s ease-out 0.5s forwards;
+}
+
 
 @keyframes spin {
     to { transform: rotate(360deg); }
@@ -125,7 +141,7 @@ body {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ffffff, #a7f3d0);
+    background:  #BFC2C8;
     width: 0%;
     transition: width 0.3s ease;
     border-radius: 10px;
@@ -133,8 +149,14 @@ body {
 }
 
 /* ================================
-   Header
+   Container
    ================================ */
+.container {
+    width: 100%;
+    max-width: 1400px;
+}
+
+/* Header 부분에 추가 */
 header {
     text-align: center;
     margin-bottom: 2rem;
@@ -144,7 +166,7 @@ h1 {
     margin-bottom: 0.5rem;
 }
 
-/* 헤더 로고만 반응형 */
+/* 헤더 로고 스타일 - 기본 */
 .header-logo {
     width: 300px;
     max-width: 90vw;
@@ -157,18 +179,274 @@ h1 {
     opacity: 0.9;
 }
 
+/* 반응형 - 헤더 로고 */
+@media (max-width: 768px) {
+    .header-logo {
+        width: 200px !important;
+        max-width: 85vw !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-logo {
+        width: 150px !important;
+        max-width: 80vw !important;
+    }
+}
+h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 300;  /* 700 → 300으로 변경 (얇게) */
+    letter-spacing: -1px;
+}
+
+h2 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* ================================
+   Main Layout
+   ================================ */
+.main-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* ================================
+   Video Section
+   ================================ */
+/* Video Section 부분 찾아서 이걸로 교체 */
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-strong);
+    aspect-ratio: 4/3;
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1); /* 좌우 반전 */
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform: scaleX(-1); /* 좌우 반전 */
+}
+
+#webcam {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ================================
+   Emotion Panel
+   ================================ */
+.emotion-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-medium);
+}
+
+.emotion-panel h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Emotion Display */
+#emotion-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    overflow-y: auto;
+    max-height: 500px;
+    padding-right: 5px;
+}
+
+/* Custom Scrollbar */
+#emotion-display::-webkit-scrollbar {
+    width: 6px;
+}
+
+#emotion-display::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+#emotion-display::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+#emotion-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Emotion Item */
+.emotion-item {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    animation: slideInLeft 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.emotion-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateX(5px) scale(1.02);
+    box-shadow: var(--shadow-medium);
+}
+
+.emotion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+/* emotion-korean 클래스명은 그대로 두되, 이제 영어만 표시됨 */
+.emotion-korean {
+    font-size: 1.3rem;  /* 크기 약간 키움 */
+    font-weight: 700;
+}
+
+/* emotion-english 클래스는 이제 사용 안 함 */
+.emotion-english {
+    display: none;  /* 숨김 */
+}
+.emotion-percent {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    min-width: 60px;
+    text-align: right;
+}
+
+/* No Face Detected */
+.no-face {
+    text-align: center;
+    padding: 3rem 1rem;
+    opacity: 0.6;
+    font-size: 1.1rem;
+}
+
+.no-face small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Statistics */
+.stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.stat-item .label {
+    opacity: 0.8;
+}
+
+.stat-item .value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent-color);
+}
+
+/* ================================
+   Footer
+   ================================ */
+footer {
+    margin-top: 2rem;
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 0.3rem 0;
+}
 /* ================================
    Responsive Design
    ================================ */
 
+/* 로고 크기 - 데스크톱/노트북 */
+#loading img,
+#loading .logo {
+    width: 600px;
+    height: auto;
+}
+
 /* 태블릿 */
 @media (max-width: 1024px) {
-    /* logo1.png (로딩 화면) - 크기 변경 없음 */
-    
-    /* logo.png (헤더) - 작아짐 */
-    .header-logo {
-        width: 250px;
-        max-width: 85vw;
+    #loading img,
+    #loading .logo {
+        width: 420px;
     }
     
     .main-wrapper {
@@ -182,17 +460,9 @@ h1 {
 
 /* 모바일 */
 @media (max-width: 768px) {
-    /* logo1.png (로딩 화면) - 크기 변경 없음! */
-    
-    /* logo.png (헤더만) - 작아짐 */
-    .header-logo {
-        width: 200px !important;
-        max-width: 80vw !important;
-    }
-    
-    #loading p,
-    #loading-text {
-        font-size: 1.1rem;
+    #loading img,
+    #loading .logo {
+        width: 200px;
     }
     
     h1 {
@@ -222,22 +492,9 @@ h1 {
 
 /* 작은 모바일 */
 @media (max-width: 480px) {
-    /* logo1.png (로딩 화면) - 여전히 크기 변경 없음! */
-    
-    /* logo.png (헤더만) - 더 작아짐 */
-    .header-logo {
-        width: 150px !important;
-        max-width: 75vw !important;
-    }
-    
-    #loading p,
-    #loading-text {
-        font-size: 1rem;
-    }
-    
-    .loader {
-        width: 50px;
-        height: 50px;
+    #loading img,
+    #loading .logo {
+        width: 100px;  /* 작은 화면에서는 더 작게 */
     }
     
     body {
