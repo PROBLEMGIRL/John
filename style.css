@@ -32,8 +32,15 @@
 }
 
 body {
-    font-family: 'All Round Gothic', 'All Round Gothic', 'All Round Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
-    /* ... 나머지 코드 */
+    font-family: 'All Round Gothic', 'Segoe UI', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #517bf2;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-primary);
+
 
     
     
@@ -156,8 +163,14 @@ header {
     text-align: center;
     margin-bottom: 2rem;
 }
-
 h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 300;  /* 700 → 300으로 변경 (얇게) */
+    letter-spacing: -1px;
+}
+
+h2 {
     font-size: 3rem;
     margin-bottom: 0.5rem;
     font-weight: 700;
@@ -473,4 +486,24 @@ footer p {
     .emotion-item {
         padding: 0.8rem;
     }
+header img,
+header h1 img {
+    width: 450px;
+    height: auto;
+    display: block;
+    margin: 0 auto 0.5rem;
 }
+
+@media (max-width: 768px) {
+    header img,
+    header h1 img {
+        width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    header img,
+    header h1 img {
+        width: 250px;
+    }
+}}
