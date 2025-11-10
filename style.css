@@ -434,86 +434,75 @@ footer p {
 /* ================================
    Responsive Design
    ================================ */
+/* ================================
+   로딩 화면 로고 (logo1.png)
+   ================================ */
 
-/* 로고 크기 - 데스크톱/노트북 */
-#loading img,
+/* 데스크톱 */
 #loading .logo {
     width: 600px;
+    max-width: 90vw;
     height: auto;
+    margin-bottom: 20px;
+    display: block;
 }
 
 /* 태블릿 */
 @media (max-width: 1024px) {
-    #loading img,
     #loading .logo {
-        width: 420px;
-    }
-    
-    .main-wrapper {
-        grid-template-columns: 1fr;
-    }
-    
-    #emotion-display {
-        max-height: 400px;
+        width: 400px;
+        max-width: 85vw;
     }
 }
 
 /* 모바일 */
 @media (max-width: 768px) {
-    #loading img,
     #loading .logo {
         width: 300px;
-    }
-    
-    h1 {
-        font-size: 2rem;
-    }
-    
-    .subtitle {
-        font-size: 1rem;
-    }
-    
-    .emotion-panel {
-        padding: 1.5rem;
-    }
-    
-    #emotion-display {
-        max-height: 300px;
-    }
-    
-    .emotion-korean {
-        font-size: 1rem;
-    }
-    
-    .emotion-percent {
-        font-size: 1.1rem;
+        max-width: 80vw;
     }
 }
 
 /* 작은 모바일 */
 @media (max-width: 480px) {
-    #loading img,
     #loading .logo {
-        width: 300px;  /* 작은 화면에서는 더 작게 */
+        width: 250px;
+        max-width: 75vw;
     }
-    
-    body {
-        padding: 10px;
+}
+
+/* ================================
+   헤더 로고 (logo.png)
+   ================================ */
+
+/* 데스크톱 */
+.header-logo {
+    width: 400px;
+    max-width: 90vw;
+    height: auto;
+    display: inline-block;
+}
+
+/* 태블릿 */
+@media (max-width: 1024px) {
+    .header-logo {
+        width: 300px;
+        max-width: 85vw;
     }
-    
-    h1 {
-        font-size: 1.5rem;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    .header-logo {
+        width: 250px;
+        max-width: 80vw;
     }
-    
-    .subtitle {
-        font-size: 0.9rem;
-    }
-    
-    .emotion-panel {
-        padding: 1rem;
-    }
-    
-    .emotion-item {
-        padding: 0.8rem;
+}
+
+/* 작은 모바일 */
+@media (max-width: 480px) {
+    .header-logo {
+        width: 200px;
+        max-width: 75vw;
     }
 }
