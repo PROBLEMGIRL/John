@@ -419,7 +419,7 @@ footer p {
 @media (max-width: 768px) {
     #loading img,
     #loading .logo {
-        width: 400px;
+        width: 350px;
     }
     
     h1 {
