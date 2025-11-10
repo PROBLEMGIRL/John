@@ -156,12 +156,42 @@ body {
     max-width: 1400px;
 }
 
-/* ================================
-   Header
-   ================================ */
+/* Header 부분에 추가 */
 header {
     text-align: center;
     margin-bottom: 2rem;
+}
+
+h1 {
+    margin-bottom: 0.5rem;
+}
+
+/* 헤더 로고 스타일 - 기본 */
+.header-logo {
+    width: 300px;
+    max-width: 90vw;
+    height: auto;
+    display: inline-block;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* 반응형 - 헤더 로고 */
+@media (max-width: 768px) {
+    .header-logo {
+        width: 200px !important;
+        max-width: 85vw !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-logo {
+        width: 150px !important;
+        max-width: 80vw !important;
+    }
 }
 h1 {
     font-size: 3rem;

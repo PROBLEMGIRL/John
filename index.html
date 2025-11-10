@@ -12,26 +12,25 @@
 <body>
     
     <!-- Loading Screen -->
-   <div id="loading">
-    <!-- 로고 이미지 추가 -->
-    <img src="logo1.png" alt="Logo" class="logo" >
-    
-    <div class="loader"></div>
-    <p id="loading-text">AI 감정 인식 시스템 초기화 중...</p>
-    <small id="loading-detail">모델 로딩 중</small>
-    
-    <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
+    <div id="loading">
+        <!-- 로딩 화면 로고 -->
+        <img src="logo1.png" alt="Logo" class="logo">
+        
+        <div class="loader"></div>
+        <p id="loading-text">Loading AI Model...</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <small id="loading-detail">Preparing... (0%)</small>
     </div>
-</div>
 
     <div class="container">
         <header>
-    <h1>
-        <img src="logo.png" alt="Logo" style="width: 300px; height: auto;">
-    </h1>
-
-            <p class="subtitle">Emotion Technology :  AI analyzes human emotions in real-time</p>
+            <!-- 헤더 로고 - 인라인 스타일 제거, 클래스 추가 -->
+            <h1>
+                <img src="logo.png" alt="Logo" class="header-logo">
+            </h1>
+            <p class="subtitle">Emotion Technology : AI analyzes human emotions in real-time</p>
         </header>
         
         <main class="main-wrapper">
