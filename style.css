@@ -28,11 +28,62 @@ body {
     padding: 20px;
     color: var(--text-primary);
 }
-/* 기존 #loading 스타일 아래에 추가 */
+
+/* ================================
+   Loading Screen
+   ================================ */
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+#loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loading p,
+#loading-text {
+    font-size: 1.3rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+}
+
+#loading small,
+#loading-detail {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    color: white;
+}
 
 .progress-bar {
-    width: 200px;
-    height: 8px;
+    width: 300px;
+    height: 10px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     overflow: hidden;
@@ -41,17 +92,13 @@ body {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #ffffff, #a7f3d0);
     width: 0%;
     transition: width 0.3s ease;
     border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-#loading-detail {
-    font-size: 0.85rem;
-    opacity: 0.7;
-    margin-top: 5px;
-}
 /* ================================
    Container
    ================================ */
@@ -98,64 +145,23 @@ h1 {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-strong);
+    aspect-ratio: 4/3;
 }
 
-#sketch-holder {
+#webcam {
     width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-#sketch-holder canvas {
+    height: 100%;
+    object-fit: cover;
     display: block;
-    border-radius: 20px;
-    width: 100% !important;
-    height: auto !important;
 }
 
-/* Loading Overlay */
-#loading {
+#canvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    z-index: 10;
-    transition: opacity 0.3s ease;
-}
-
-#loading.hidden {
-    opacity: 0;
     pointer-events: none;
-}
-
-.loader {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #667eea;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-#loading p {
-    font-size: 1.1rem;
-    color: white;
-}
-
-#loading small {
-    font-size: 0.85rem;
-    opacity: 0.7;
 }
 
 /* ================================
@@ -397,26 +403,7 @@ footer p {
     }
 }
 
-/* Focus Styles */
 *:focus {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
-}
-
-/* 기존 CSS 끝에 추가 */
-
-#webcam {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-#canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
 }
