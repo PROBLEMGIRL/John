@@ -438,7 +438,7 @@ footer p {
 /* 로고 크기 - 데스크톱/노트북 */
 #loading img,
 #loading .logo {
-    width: 600px;
+    width: 450px;
     height: auto;
 }
 
@@ -462,7 +462,7 @@ footer p {
 @media (max-width: 768px) {
     #loading img,
     #loading .logo {
-        width: 200px;
+        width: 300px;
     }
     
     h1 {
