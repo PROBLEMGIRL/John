@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John - Emotion Recognition</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>John, Emotion Technology</h1>
+        <p class="subtitle">AI가 인간의 감정을 실시간으로 분석합니다</p>
+        
+        <div class="main-wrapper">
+            <!-- 웹캠 영역 -->
+            <div class="video-container">
+                <div id="sketch-holder"></div>
+                <div id="loading">
+                    <div class="loader"></div>
+                    <p>AI 모델 로딩 중...</p>
+                    <small>최초 실행 시 약 10초 소요</small>
+                </div>
+            </div>
+            
+            <!-- 감정 표시 영역 -->
+            <div class="emotion-panel">
+                <h2>감지된 감정 스펙트럼</h2>
+                <div id="emotion-display">
+                    <div class="no-face">얼굴을 화면 중앙에 위치시켜주세요</div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="label">주요 감정:</span>
+                        <span class="value" id="dominant-emotion">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">감지된 얼굴:</span>
+                        <span class="value" id="face-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">FPS:</span>
+                        <span class="value" id="fps">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="sketch.js"></script>
+</body>
+</html>
