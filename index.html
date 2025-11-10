@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>John - Emotion Recognition</title>
     <link rel="stylesheet" href="./style.css">
     
-    <!-- face-api.js - 가볍고 안정적 -->
+    <!-- face-api.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 </head>
 <body>
-    <!-- 로딩 화면 -->
+    <!-- Loading Screen -->
     <div id="loading">
         <div class="loader"></div>
-        <p id="loading-text">AI 모델 로딩 중...</p>
+        <p id="loading-text">Loading AI Model...</p>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-        <small id="loading-detail">준비 중... (0%)</small>
+        <small id="loading-detail">Preparing... (0%)</small>
     </div>
 
     <div class="container">
         <header>
             <h1>John, Emotion Technology</h1>
-            <p class="subtitle">AI가 인간의 감정을 실시간으로 분석합니다</p>
+            <p class="subtitle">AI analyzes human emotions in real-time</p>
         </header>
         
         <main class="main-wrapper">
@@ -33,18 +33,18 @@
             </section>
             
             <aside class="emotion-panel">
-                <h2>감지된 감정 스펙트럼</h2>
+                <h2>Detected Emotion Spectrum</h2>
                 <div id="emotion-display">
-                    <div class="no-face">얼굴을 화면 중앙에 위치시켜주세요</div>
+                    <div class="no-face">Please position your face in the center</div>
                 </div>
                 
                 <div class="stats">
                     <div class="stat-item">
-                        <span class="label">주요 감정:</span>
+                        <span class="label">Dominant Emotion:</span>
                         <span class="value" id="dominant-emotion">-</span>
                     </div>
                     <div class="stat-item">
-                        <span class="label">감지된 얼굴:</span>
+                        <span class="label">Faces Detected:</span>
                         <span class="value" id="face-count">0</span>
                     </div>
                     <div class="stat-item">
@@ -57,7 +57,7 @@
         
         <footer>
             <p>Powered by face-api.js | Created by Milky</p>
-            <p><small>⚠️ 웹캠 권한이 필요합니다</small></p>
+            <p><small>⚠️ Camera permission required</small></p>
         </footer>
     </div>
     

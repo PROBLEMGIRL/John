@@ -8,7 +8,7 @@
 }
 
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #517bf2;  /* 메인 컬러 */
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
     --text-primary: #ffffff;
@@ -20,7 +20,7 @@
 
 body {
     font-family: 'Segoe UI', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--primary-gradient);
+    background: #517bf2;  /* 단색 배경 */
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -38,7 +38,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #517bf2;  /* 로딩 화면도 같은 색 */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -274,17 +274,16 @@ h1 {
     gap: 0.2rem;
 }
 
+/* emotion-korean 클래스명은 그대로 두되, 이제 영어만 표시됨 */
 .emotion-korean {
-    font-size: 1.2rem;
+    font-size: 1.3rem;  /* 크기 약간 키움 */
     font-weight: 700;
 }
 
+/* emotion-english 클래스는 이제 사용 안 함 */
 .emotion-english {
-    font-size: 0.85rem;
-    opacity: 0.8;
-    font-style: italic;
+    display: none;  /* 숨김 */
 }
-
 .emotion-percent {
     font-size: 1.3rem;
     font-weight: 600;
