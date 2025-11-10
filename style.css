@@ -1,6 +1,19 @@
 /* ================================
    Global Styles
    ================================ */
+   /* ================================
+   Font Import
+   ================================ */
+@import url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSansLight.css');
+@import url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSansMedium.css');
+@import url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSansBold.css');
+
+/* 또는 All Round Gothic이 있는 경우 */
+@import url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NIXGONM-Vb.woff') format('woff');
+
+/* ================================
+   Global Styles
+   ================================ */
 * {
     margin: 0;
     padding: 0;
@@ -19,7 +32,12 @@
 }
 
 body {
-    font-family: 'Segoe UI', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'All Round Gothic', 'All Round Gothic', 'All Round Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* ... 나머지 코드 */
+
+    
+    
+    
     background: #517bf2;  /* 단색 배경 */
     min-height: 100vh;
     display: flex;
