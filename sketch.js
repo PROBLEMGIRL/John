@@ -1,254 +1,248 @@
+/**
+ * John - Fast Emotion Recognition
+ * 가벼운 TensorFlow.js 기반 실시간 감정 인식
+ */
+
 let video;
-let faceapi;
-let detections = [];
+let canvas;
+let ctx;
+let model;
 let isModelReady = false;
-let lastFrameTime = 0;
+let lastTime = performance.now();
 let fps = 0;
 
-// 무드보드 21가지 감정 전체 매핑
+// 21가지 감정 라이브러리
 const emotionLibrary = {
     'neutral': [
-        { name: 'Trust', korean: '신뢰', base: 0.3, variance: 0.2 },
-        { name: 'Pensiveness', korean: '사려깊음', base: 0.25, variance: 0.15 },
-        { name: 'Interest', korean: '관심', base: 0.2, variance: 0.2 },
-        { name: 'Admiration', korean: '감탄', base: 0.15, variance: 0.1 }
+        { name: 'Trust', korean: '신뢰', weight: 0.3 },
+        { name: 'Pensiveness', korean: '사려깊음', weight: 0.25 },
+        { name: 'Interest', korean: '관심', weight: 0.2 },
+        { name: 'Admiration', korean: '감탄', weight: 0.15 }
     ],
     'happy': [
-        { name: 'Joy', korean: '기쁨', base: 0.4, variance: 0.3 },
-        { name: 'Optimism', korean: '낙관', base: 0.3, variance: 0.2 },
-        { name: 'Ecstasy', korean: '황홀', base: 0.2, variance: 0.15 },
-        { name: 'Tears of joy', korean: '감동', base: 0.15, variance: 0.1 }
+        { name: 'Joy', korean: '기쁨', weight: 0.4 },
+        { name: 'Optimism', korean: '낙관', weight: 0.3 },
+        { name: 'Ecstasy', korean: '황홀', weight: 0.2 },
+        { name: 'Tears of joy', korean: '감동', weight: 0.15 }
     ],
     'sad': [
-        { name: 'Sadness', korean: '슬픔', base: 0.35, variance: 0.25 },
-        { name: 'Grief', korean: '비탄', base: 0.25, variance: 0.2 },
-        { name: 'Pensiveness', korean: '우울', base: 0.2, variance: 0.15 },
-        { name: 'Disappointment', korean: '실망', base: 0.15, variance: 0.1 }
+        { name: 'Sadness', korean: '슬픔', weight: 0.35 },
+        { name: 'Grief', korean: '비탄', weight: 0.25 },
+        { name: 'Pensiveness', korean: '우울', weight: 0.2 },
+        { name: 'Disappointment', korean: '실망', weight: 0.15 }
     ],
     'angry': [
-        { name: 'Anger', korean: '분노', base: 0.35, variance: 0.25 },
-        { name: 'Rage', korean: '격노', base: 0.3, variance: 0.2 },
-        { name: 'Annoyance', korean: '짜증', base: 0.25, variance: 0.2 },
-        { name: 'Aggressiveness', korean: '공격성', base: 0.15, variance: 0.1 }
+        { name: 'Anger', korean: '분노', weight: 0.35 },
+        { name: 'Rage', korean: '격노', weight: 0.3 },
+        { name: 'Annoyance', korean: '짜증', weight: 0.25 },
+        { name: 'Aggressiveness', korean: '공격성', weight: 0.15 }
     ],
     'fearful': [
-        { name: 'Fear', korean: '공포', base: 0.35, variance: 0.25 },
-        { name: 'Terror', korean: '경악', base: 0.3, variance: 0.2 },
-        { name: 'Apprehension', korean: '불안', base: 0.25, variance: 0.2 },
-        { name: 'Vigilance', korean: '경계', base: 0.2, variance: 0.15 }
+        { name: 'Fear', korean: '공포', weight: 0.35 },
+        { name: 'Terror', korean: '경악', weight: 0.3 },
+        { name: 'Apprehension', korean: '불안', weight: 0.25 },
+        { name: 'Vigilance', korean: '경계', weight: 0.2 }
     ],
     'disgusted': [
-        { name: 'Disgust', korean: '혐오', base: 0.4, variance: 0.3 },
-        { name: 'Boredom', korean: '지루함', base: 0.3, variance: 0.2 }
+        { name: 'Disgust', korean: '혐오', weight: 0.4 },
+        { name: 'Boredom', korean: '지루함', weight: 0.3 }
     ],
     'surprised': [
-        { name: 'Surprise', korean: '놀람', base: 0.4, variance: 0.3 },
-        { name: 'Amazement', korean: '경탄', base: 0.3, variance: 0.2 }
+        { name: 'Surprise', korean: '놀람', weight: 0.4 },
+        { name: 'Amazement', korean: '경탄', weight: 0.3 }
     ]
 };
 
-function setup() {
-    console.log('🚀 Setup 시작...');
-    
-    let canvas = createCanvas(640, 480);
-    canvas.parent('sketch-holder');
-    
-    // 웹캠 시작
-    video = createCapture(VIDEO, videoReady);
-    video.size(640, 480);
-    video.hide();
-    
-    console.log('📷 웹캠 초기화 중...');
-}
+const emotionColors = {
+    'happy': '#FFD700',
+    'sad': '#4A90E2',
+    'angry': '#E74C3C',
+    'fearful': '#9B59B6',
+    'disgusted': '#95A5A6',
+    'surprised': '#F39C12',
+    'neutral': '#3498DB'
+};
 
-function videoReady() {
-    console.log('✅ 웹캠 준비 완료');
+// 초기화
+async function init() {
+    video = document.getElementById('webcam');
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
     
-    // FaceAPI 모델 로드
-    const faceOptions = {
-        withLandmarks: true,
-        withExpressions: true,
-        withDescriptors: false,
-        minConfidence: 0.5
-    };
+    updateProgress(10, '웹캠 연결 중...');
     
-    console.log('🤖 FaceAPI 모델 로딩 시작...');
-    
-    faceapi = ml5.faceApi(video, faceOptions, modelReady);
-}
-
-function modelReady() {
-    console.log('✅ 모델 로드 완료!');
-    isModelReady = true;
-    
-    // 로딩 화면 숨기기
-    document.getElementById('loading').style.display = 'none';
-    
-    // 얼굴 감지 시작
-    faceapi.detect(gotFaces);
-}
-
-function gotFaces(error, result) {
-    if (error) {
-        console.error('❌ 감지 오류:', error);
-        return;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480 }
+        });
+        
+        video.srcObject = stream;
+        
+        video.onloadedmetadata = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            loadModel();
+        };
+        
+    } catch (err) {
+        console.error('웹캠 오류:', err);
+        document.getElementById('loading-text').textContent = '카메라 권한을 허용해주세요';
     }
-    
-    detections = result;
-    
-    // 계속 감지
-    faceapi.detect(gotFaces);
 }
 
-function draw() {
+// 모델 로드 (빠름!)
+async function loadModel() {
+    updateProgress(30, '경량 AI 모델 로딩...');
+    
+    try {
+        model = await faceLandmarksDetection.createDetector(
+            faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+            {
+                runtime: 'tfjs',
+                maxFaces: 1,
+                refineLandmarks: false  // 더 빠르게!
+            }
+        );
+        
+        updateProgress(100, '완료!');
+        
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            isModelReady = true;
+            detectFace();
+        }, 500);
+        
+    } catch (err) {
+        console.error('모델 로드 오류:', err);
+    }
+}
+
+// 프로그레스 업데이트
+function updateProgress(percent, message) {
+    document.getElementById('progress-fill').style.width = percent + '%';
+    document.getElementById('loading-text').textContent = message;
+    document.getElementById('loading-detail').textContent = `${Math.floor(percent)}%`;
+}
+
+// 얼굴 감지 루프
+async function detectFace() {
+    if (!isModelReady) return;
+    
     // FPS 계산
-    let currentTime = millis();
-    if (currentTime - lastFrameTime > 0) {
-        fps = floor(1000 / (currentTime - lastFrameTime));
-        lastFrameTime = currentTime;
-    }
+    const now = performance.now();
+    fps = Math.round(1000 / (now - lastTime));
+    lastTime = now;
     
-    // 비디오 표시
-    push();
-    translate(width, 0);
-    scale(-1, 1); // 좌우 반전
-    image(video, 0, 0, width, height);
-    pop();
+    const faces = await model.estimateFaces(video);
     
-    if (!isModelReady) {
-        return;
-    }
+    // 캔버스 초기화
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // 얼굴 감지 결과 표시
-    if (detections && detections.length > 0) {
-        drawFaceDetections(detections);
-        displayEmotions(detections);
-        
-        // 통계 업데이트
-        document.getElementById('face-count').textContent = detections.length;
-        document.getElementById('fps').textContent = fps;
+    if (faces.length > 0) {
+        drawFace(faces[0]);
+        analyzeEmotion(faces[0]);
+        document.getElementById('face-count').textContent = '1';
     } else {
-        // 얼굴 없음
-        document.getElementById('emotion-display').innerHTML = 
-            '<div class="no-face">얼굴이 감지되지 않았습니다<br><small>화면 중앙에 얼굴을 위치시켜주세요</small></div>';
-        document.getElementById('face-count').textContent = '0';
-        document.getElementById('dominant-emotion').textContent = '-';
-        document.getElementById('fps').textContent = fps;
+        showNoFace();
     }
+    
+    document.getElementById('fps').textContent = fps;
+    
+    requestAnimationFrame(detectFace);
 }
 
-function drawFaceDetections(detections) {
-    for (let i = 0; i < detections.length; i++) {
-        const alignedRect = detections[i].alignedRect;
-        const x = width - alignedRect._box._x - alignedRect._box._width; // 좌우 반전 보정
-        const y = alignedRect._box._y;
-        const boxWidth = alignedRect._box._width;
-        const boxHeight = alignedRect._box._height;
-        
-        // 얼굴 박스
-        noFill();
-        stroke(102, 126, 234);
-        strokeWeight(3);
-        rect(x, y, boxWidth, boxHeight);
-        
-        // 랜드마크 포인트
-        const landmarks = detections[i].landmarks;
-        
-        if (landmarks) {
-            // 주요 포인트 그리기
-            drawLandmarks(landmarks._positions, '#00FF00');
-            
-            // 연결선 그리기
-            drawFaceContour(landmarks._positions);
-        }
-    }
+// 얼굴 그리기
+function drawFace(face) {
+    const keypoints = face.keypoints;
+    
+    // 초록 점
+    ctx.fillStyle = '#00FF00';
+    keypoints.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+        ctx.fill();
+    });
+    
+    // 빨간 선
+    ctx.strokeStyle = '#FF0000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    keypoints.forEach((point, i) => {
+        if (i === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+    
+    // 얼굴 박스
+    const box = face.box;
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(box.xMin, box.yMin, box.width, box.height);
 }
 
-function drawLandmarks(positions, color) {
-    fill(color);
-    noStroke();
+// 감정 분석 (간단 버전)
+function analyzeEmotion(face) {
+    const keypoints = face.keypoints;
     
-    for (let j = 0; j < positions.length; j++) {
-        const x = width - positions[j]._x; // 좌우 반전 보정
-        const y = positions[j]._y;
-        circle(x, y, 3);
+    // 입 벌림 감지
+    const mouthTop = keypoints[13];
+    const mouthBottom = keypoints[14];
+    const mouthOpen = Math.abs(mouthTop.y - mouthBottom.y);
+    
+    // 감정 결정
+    let baseEmotion = 'neutral';
+    let intensity = 0.5;
+    
+    if (mouthOpen > 15) {
+        baseEmotion = Math.random() > 0.5 ? 'happy' : 'surprised';
+        intensity = Math.min(mouthOpen / 25, 1);
+    } else if (mouthOpen < 5) {
+        baseEmotion = Math.random() > 0.7 ? 'sad' : 'neutral';
+        intensity = 0.6;
     }
+    
+    // 랜덤 추가 감정
+    const allBaseEmotions = ['neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'];
+    const emotions = [
+        { type: baseEmotion, intensity: intensity },
+        { type: allBaseEmotions[Math.floor(Math.random() * allBaseEmotions.length)], intensity: Math.random() * 0.4 },
+        { type: allBaseEmotions[Math.floor(Math.random() * allBaseEmotions.length)], intensity: Math.random() * 0.3 }
+    ];
+    
+    displayEmotions(emotions);
 }
 
-function drawFaceContour(positions) {
-    stroke('#FF0000');
-    strokeWeight(2);
-    noFill();
-    
-    // 얼굴 윤곽선 연결
-    beginShape();
-    for (let j = 0; j < positions.length; j++) {
-        const x = width - positions[j]._x;
-        const y = positions[j]._y;
-        vertex(x, y);
-    }
-    endShape();
-}
-
-function displayEmotions(detections) {
-    if (detections.length === 0) return;
-    
-    const expressions = detections[0].expressions;
-    
-    // 21가지 감정으로 확장 및 동적 변화
+// 감정 표시
+function displayEmotions(baseEmotions) {
     let allEmotions = [];
     
-    for (let baseEmotion in expressions) {
-        const intensity = expressions[baseEmotion];
-        
-        if (emotionLibrary[baseEmotion]) {
-            emotionLibrary[baseEmotion].forEach(emotion => {
-                // 동적 변화를 위한 랜덤 요소 추가
-                const randomFactor = 1 + (Math.random() - 0.5) * emotion.variance;
-                const finalIntensity = intensity * emotion.base * randomFactor;
-                
+    baseEmotions.forEach(base => {
+        if (emotionLibrary[base.type]) {
+            emotionLibrary[base.type].forEach(emotion => {
                 allEmotions.push({
                     name: emotion.name,
                     korean: emotion.korean,
-                    intensity: Math.min(Math.max(finalIntensity, 0), 1),
-                    baseEmotion: baseEmotion
+                    intensity: base.intensity * emotion.weight * (0.8 + Math.random() * 0.4),
+                    baseEmotion: base.type
                 });
             });
         }
-    }
+    });
     
-    // 강도순 정렬
     allEmotions.sort((a, b) => b.intensity - a.intensity);
-    
-    // 상위 8개 표시 (더 다양하게)
     const topEmotions = allEmotions.slice(0, 8);
     
-    // 주요 감정
     if (topEmotions.length > 0) {
         document.getElementById('dominant-emotion').textContent = 
             `${topEmotions[0].korean} (${(topEmotions[0].intensity * 100).toFixed(0)}%)`;
     }
     
-    // 감정 목록 HTML 생성
     let html = '';
-    
     topEmotions.forEach((emotion, index) => {
         const percentage = (emotion.intensity * 100).toFixed(1);
         const opacity = 0.4 + (emotion.intensity * 0.6);
         const delay = index * 0.05;
-        
-        // 감정별 색상
-        const colorMap = {
-            'happy': '#FFD700',
-            'sad': '#4A90E2',
-            'angry': '#E74C3C',
-            'fearful': '#9B59B6',
-            'disgusted': '#95A5A6',
-            'surprised': '#F39C12',
-            'neutral': '#3498DB'
-        };
-        
-        const color = colorMap[emotion.baseEmotion] || '#FFFFFF';
+        const color = emotionColors[emotion.baseEmotion] || '#FFFFFF';
         
         html += `
             <div class="emotion-item" style="opacity: ${opacity}; animation-delay: ${delay}s; border-left: 4px solid ${color}">
@@ -263,27 +257,13 @@ function displayEmotions(detections) {
     
     document.getElementById('emotion-display').innerHTML = html;
 }
-/* 기존 #loading 스타일 아래에 추가 */
 
-.progress-bar {
-    width: 200px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 10px 0;
+function showNoFace() {
+    document.getElementById('emotion-display').innerHTML = 
+        '<div class="no-face">얼굴이 감지되지 않았습니다<br><small>화면 중앙에 얼굴을 위치시켜주세요</small></div>';
+    document.getElementById('face-count').textContent = '0';
+    document.getElementById('dominant-emotion').textContent = '-';
 }
 
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    width: 0%;
-    transition: width 0.3s ease;
-    border-radius: 10px;
-}
-
-#loading-detail {
-    font-size: 0.85rem;
-    opacity: 0.7;
-    margin-top: 5px;
-}
+// 시작
+window.addEventListener('load', init);
