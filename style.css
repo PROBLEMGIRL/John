@@ -1,0 +1,381 @@
+/* ================================
+   Global Styles
+   ================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --accent-color: #a7f3d0;
+    --shadow-strong: 0 10px 40px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: 'Segoe UI', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: var(--text-primary);
+}
+
+/* ================================
+   Container
+   ================================ */
+.container {
+    width: 100%;
+    max-width: 1400px;
+}
+
+/* ================================
+   Header
+   ================================ */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* ================================
+   Main Layout
+   ================================ */
+.main-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* ================================
+   Video Section
+   ================================ */
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-strong);
+}
+
+#sketch-holder {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#sketch-holder canvas {
+    display: block;
+    border-radius: 20px;
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Loading Overlay */
+#loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+#loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loading p {
+    font-size: 1.1rem;
+    color: white;
+}
+
+#loading small {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+/* ================================
+   Emotion Panel
+   ================================ */
+.emotion-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-medium);
+}
+
+.emotion-panel h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Emotion Display */
+#emotion-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    overflow-y: auto;
+    max-height: 500px;
+    padding-right: 5px;
+}
+
+/* Custom Scrollbar */
+#emotion-display::-webkit-scrollbar {
+    width: 6px;
+}
+
+#emotion-display::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+#emotion-display::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+#emotion-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Emotion Item */
+.emotion-item {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    animation: slideInLeft 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.emotion-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateX(5px) scale(1.02);
+    box-shadow: var(--shadow-medium);
+}
+
+.emotion-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.emotion-korean {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.emotion-english {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.emotion-percent {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    min-width: 60px;
+    text-align: right;
+}
+
+/* No Face Detected */
+.no-face {
+    text-align: center;
+    padding: 3rem 1rem;
+    opacity: 0.6;
+    font-size: 1.1rem;
+}
+
+.no-face small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Statistics */
+.stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.stat-item .label {
+    opacity: 0.8;
+}
+
+.stat-item .value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent-color);
+}
+
+/* ================================
+   Footer
+   ================================ */
+footer {
+    margin-top: 2rem;
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin: 0.3rem 0;
+}
+
+/* ================================
+   Responsive Design
+   ================================ */
+@media (max-width: 1024px) {
+    .main-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    #emotion-display {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .emotion-panel {
+        padding: 1.5rem;
+    }
+    
+    #emotion-display {
+        max-height: 300px;
+    }
+    
+    .emotion-korean {
+        font-size: 1rem;
+    }
+    
+    .emotion-percent {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .emotion-panel {
+        padding: 1rem;
+    }
+    
+    .emotion-item {
+        padding: 0.8rem;
+    }
+}
+
+/* ================================
+   Accessibility
+   ================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus Styles */
+*:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
