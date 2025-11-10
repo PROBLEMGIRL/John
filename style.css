@@ -28,7 +28,30 @@ body {
     padding: 20px;
     color: var(--text-primary);
 }
+/* 기존 #loading 스타일 아래에 추가 */
 
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+#loading-detail {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: 5px;
+}
 /* ================================
    Container
    ================================ */
