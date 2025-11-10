@@ -494,7 +494,7 @@ footer p {
 @media (max-width: 480px) {
     #loading img,
     #loading .logo {
-        width: 100px;  /* 작은 화면에서는 더 작게 */
+        width: 300px;  /* 작은 화면에서는 더 작게 */
     }
     
     body {
