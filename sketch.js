@@ -1,15 +1,17 @@
 /**
- * John - Emotion Recognition (디버깅 버전)
+ * John - Emotion Recognition
+ * face-api.js 버전 - 가장 안정적!
  */
+
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model';
 
 let video;
 let canvas;
-let ctx;
-let model;
-let isModelReady = false;
-let lastTime = performance.now();
+let displaySize;
+let isModelLoaded = false;
+let lastTime = Date.now();
+let frameCount = 0;
 let fps = 0;
-let debugMode = true; // 디버그 모드
 
 // 21가지 감정 라이브러리
 const emotionLibrary = {
@@ -66,86 +68,75 @@ const emotionColors = {
 // 초기화
 async function init() {
     console.log('🚀 초기화 시작');
+    updateProgress(10, '웹캠 시작 중...');
     
-    video = document.getElementById('webcam');
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');
-    
-    updateProgress(10, '웹캠 연결 중...');
+    video = document.getElementById('video');
+    canvas = document.getElementById('overlay');
     
     try {
-        console.log('📷 웹캠 권한 요청 중...');
-        
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-                width: { ideal: 640 },
-                height: { ideal: 480 },
-                facingMode: 'user'
-            }
+        // 웹캠 시작
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 640, height: 480 } 
         });
         
         video.srcObject = stream;
         console.log('✅ 웹캠 연결 성공');
         
-        video.onloadedmetadata = () => {
-            console.log('✅ 비디오 메타데이터 로드');
-            console.log(`📐 비디오 크기: ${video.videoWidth} x ${video.videoHeight}`);
+        video.addEventListener('play', () => {
+            console.log('▶️ 비디오 재생 시작');
             
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
             
-            loadModel();
-        };
-        
-        // 비디오 재생 시작
-        video.play();
+            canvas.width = videoWidth;
+            canvas.height = videoHeight;
+            
+            displaySize = { width: videoWidth, height: videoHeight };
+            
+            console.log(`📐 비디오 크기: ${videoWidth} x ${videoHeight}`);
+            
+            loadModels();
+        });
         
     } catch (err) {
         console.error('❌ 웹캠 오류:', err);
-        document.getElementById('loading-text').textContent = '카메라 권한을 허용해주세요';
-        document.getElementById('loading-detail').textContent = err.message;
+        updateProgress(0, '카메라 권한을 허용해주세요');
     }
 }
 
 // 모델 로드
-async function loadModel() {
-    updateProgress(30, 'AI 모델 로딩 중...');
-    console.log('🤖 모델 로딩 시작...');
+async function loadModels() {
+    updateProgress(30, 'AI 모델 다운로드 중...');
+    console.log('🤖 모델 로드 시작...');
     
     try {
-        // TensorFlow 백엔드 준비
-        await tf.ready();
-        console.log('✅ TensorFlow 준비 완료');
+        // 필요한 모델만 로드
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        console.log('✅ Tiny Face Detector 로드 완료');
+        updateProgress(60, '랜드마크 모델 로딩...');
         
-        updateProgress(50, '얼굴 인식 모델 로딩...');
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        console.log('✅ Face Landmark 로드 완료');
+        updateProgress(80, '감정 인식 모델 로딩...');
         
-        model = await faceLandmarksDetection.createDetector(
-            faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-            {
-                runtime: 'tfjs',
-                maxFaces: 1,
-                refineLandmarks: true
-            }
-        );
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+        console.log('✅ Face Expression 로드 완료');
         
-        console.log('✅ 모델 로드 완료!');
-        updateProgress(100, '준비 완료!');
+        updateProgress(100, '완료!');
         
         setTimeout(() => {
             document.getElementById('loading').style.display = 'none';
-            isModelReady = true;
-            console.log('🎬 얼굴 감지 시작');
-            detectFace();
+            isModelLoaded = true;
+            console.log('🎬 얼굴 감지 시작!');
+            detectFaces();
         }, 500);
         
     } catch (err) {
         console.error('❌ 모델 로드 오류:', err);
-        document.getElementById('loading-text').textContent = '모델 로드 실패';
-        document.getElementById('loading-detail').textContent = err.message;
+        updateProgress(0, '모델 로드 실패');
     }
 }
 
-// 프로그레스 업데이트
 function updateProgress(percent, message) {
     document.getElementById('progress-fill').style.width = percent + '%';
     document.getElementById('loading-text').textContent = message;
@@ -153,169 +144,139 @@ function updateProgress(percent, message) {
 }
 
 // 얼굴 감지 루프
-async function detectFace() {
-    if (!isModelReady) {
-        console.warn('⚠️ 모델이 준비되지 않음');
-        return;
-    }
+async function detectFaces() {
+    if (!isModelLoaded) return;
     
     // FPS 계산
-    const now = performance.now();
-    fps = Math.round(1000 / (now - lastTime));
-    lastTime = now;
+    frameCount++;
+    const now = Date.now();
+    if (now - lastTime >= 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = now;
+        document.getElementById('fps').textContent = fps;
+    }
     
     try {
-        // 비디오가 재생 중인지 확인
-        if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-            if (debugMode) console.log('⏳ 비디오 데이터 대기 중...');
-            requestAnimationFrame(detectFace);
-            return;
-        }
-        
-        // 얼굴 감지
-        const faces = await model.estimateFaces(video, {
-            flipHorizontal: false
-        });
-        
-        if (debugMode && faces.length > 0) {
-            console.log(`👤 얼굴 감지됨: ${faces.length}개`);
-        }
+        // 얼굴 감지 + 랜드마크 + 표정
+        const detections = await faceapi
+            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceExpressions();
         
         // 캔버스 초기화
+        const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        if (faces.length > 0) {
-            drawFace(faces[0]);
-            analyzeEmotion(faces[0]);
-            document.getElementById('face-count').textContent = '1';
+        if (detections.length > 0) {
+            console.log('👤 얼굴 감지됨!');
+            
+            // 리사이즈
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+            
+            // 그리기
+            drawDetections(resizedDetections[0]);
+            
+            // 감정 분석
+            analyzeEmotions(resizedDetections[0]);
+            
+            document.getElementById('face-count').textContent = detections.length;
         } else {
-            if (debugMode) console.log('❌ 얼굴 없음');
+            console.log('❌ 얼굴 없음');
             showNoFace();
         }
-        
-        document.getElementById('fps').textContent = fps;
         
     } catch (err) {
         console.error('❌ 감지 오류:', err);
     }
     
-    requestAnimationFrame(detectFace);
+    setTimeout(() => detectFaces(), 100); // 100ms마다 감지
 }
 
-// 얼굴 그리기
-function drawFace(face) {
-    const keypoints = face.keypoints;
+// 감지 결과 그리기
+function drawDetections(detection) {
+    const ctx = canvas.getContext('2d');
     
-    if (debugMode) {
-        console.log(`📍 키포인트 수: ${keypoints.length}`);
-    }
+    // 얼굴 박스
+    const box = detection.detection.box;
+    ctx.strokeStyle = '#667eea';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(box.x, box.y, box.width, box.height);
     
-    // 얼굴 박스 그리기
-    if (face.box) {
-        const box = face.box;
-        ctx.strokeStyle = '#667eea';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(box.xMin, box.yMin, box.width, box.height);
-        
-        // 박스 정보 텍스트
-        ctx.fillStyle = '#667eea';
-        ctx.font = '16px Arial';
-        ctx.fillText(`Face Detected`, box.xMin, box.yMin - 10);
-    }
-    
-    // 중요 키포인트만 그리기 (눈, 코, 입)
-    const importantIndices = [
-        // 왼쪽 눈
-        33, 160, 158, 133, 153, 144,
-        // 오른쪽 눈
-        362, 385, 387, 263, 373, 380,
-        // 코
-        1, 2, 98, 327,
-        // 입
-        61, 291, 13, 14, 17, 84, 181, 314
-    ];
-    
-    // 초록 점 그리기
+    // 랜드마크 포인트 (초록색)
+    const landmarks = detection.landmarks.positions;
     ctx.fillStyle = '#00FF00';
-    importantIndices.forEach(i => {
-        if (keypoints[i]) {
-            ctx.beginPath();
-            ctx.arc(keypoints[i].x, keypoints[i].y, 3, 0, 2 * Math.PI);
-            ctx.fill();
-        }
+    landmarks.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+        ctx.fill();
     });
     
-    // 얼굴 윤곽선 그리기 (빨간 선)
+    // 얼굴 윤곽선 (빨간색)
     ctx.strokeStyle = '#FF0000';
     ctx.lineWidth = 2;
+    
+    // 얼굴 외곽선
+    const jawOutline = landmarks.slice(0, 17);
     ctx.beginPath();
+    jawOutline.forEach((point, i) => {
+        if (i === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
     
-    // 얼굴 외곽 연결
-    const contour = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 
-                     397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 
-                     172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+    // 눈 (왼쪽)
+    const leftEye = landmarks.slice(36, 42);
+    ctx.beginPath();
+    leftEye.forEach((point, i) => {
+        if (i === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.stroke();
     
-    contour.forEach((i, index) => {
-        if (keypoints[i]) {
-            if (index === 0) {
-                ctx.moveTo(keypoints[i].x, keypoints[i].y);
-            } else {
-                ctx.lineTo(keypoints[i].x, keypoints[i].y);
-            }
-        }
+    // 눈 (오른쪽)
+    const rightEye = landmarks.slice(42, 48);
+    ctx.beginPath();
+    rightEye.forEach((point, i) => {
+        if (i === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+    
+    // 입
+    const mouth = landmarks.slice(48, 68);
+    ctx.beginPath();
+    mouth.forEach((point, i) => {
+        if (i === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
     });
     ctx.closePath();
     ctx.stroke();
 }
 
 // 감정 분석
-function analyzeEmotion(face) {
-    const keypoints = face.keypoints;
+function analyzeEmotions(detection) {
+    const expressions = detection.expressions;
     
-    // 입 벌림 정도 계산
-    const upperLip = keypoints[13];
-    const lowerLip = keypoints[14];
-    const mouthOpen = Math.abs(upperLip.y - lowerLip.y);
+    console.log('😊 감정 데이터:', expressions);
     
-    // 눈썹 높이
-    const leftEyebrow = keypoints[70];
-    const rightEyebrow = keypoints[300];
-    
-    if (debugMode) {
-        console.log(`👄 입 벌림: ${mouthOpen.toFixed(2)}`);
+    // 기본 7가지 감정
+    let baseEmotions = [];
+    for (let emotion in expressions) {
+        baseEmotions.push({
+            type: emotion,
+            intensity: expressions[emotion]
+        });
     }
     
-    // 감정 결정
-    let baseEmotion = 'neutral';
-    let intensity = 0.5;
+    // 강도순 정렬
+    baseEmotions.sort((a, b) => b.intensity - a.intensity);
     
-    if (mouthOpen > 20) {
-        baseEmotion = 'surprised';
-        intensity = Math.min(mouthOpen / 30, 1);
-    } else if (mouthOpen > 12) {
-        baseEmotion = 'happy';
-        intensity = Math.min(mouthOpen / 20, 1);
-    } else if (mouthOpen < 5) {
-        baseEmotion = Math.random() > 0.5 ? 'sad' : 'neutral';
-        intensity = 0.6;
-    }
-    
-    // 추가 랜덤 감정
-    const allEmotions = ['neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'];
-    const emotions = [
-        { type: baseEmotion, intensity: intensity },
-        { type: allEmotions[Math.floor(Math.random() * allEmotions.length)], intensity: Math.random() * 0.4 },
-        { type: allEmotions[Math.floor(Math.random() * allEmotions.length)], intensity: Math.random() * 0.3 }
-    ];
-    
-    displayEmotions(emotions);
-}
-
-// 감정 표시
-function displayEmotions(baseEmotions) {
+    // 21가지로 확장
     let allEmotions = [];
-    
-    baseEmotions.forEach(base => {
+    baseEmotions.slice(0, 3).forEach(base => {
         if (emotionLibrary[base.type]) {
             emotionLibrary[base.type].forEach(emotion => {
                 allEmotions.push({
@@ -331,6 +292,10 @@ function displayEmotions(baseEmotions) {
     allEmotions.sort((a, b) => b.intensity - a.intensity);
     const topEmotions = allEmotions.slice(0, 8);
     
+    displayEmotions(topEmotions);
+}
+
+function displayEmotions(topEmotions) {
     if (topEmotions.length > 0) {
         document.getElementById('dominant-emotion').textContent = 
             `${topEmotions[0].korean} (${(topEmotions[0].intensity * 100).toFixed(0)}%)`;
@@ -365,12 +330,4 @@ function showNoFace() {
 }
 
 // 시작
-window.addEventListener('load', () => {
-    console.log('🌟 페이지 로드 완료');
-    init();
-});
-
-// 에러 핸들링
-window.addEventListener('error', (e) => {
-    console.error('❌ 전역 오류:', e.error);
-});
+window.addEventListener('load', init);

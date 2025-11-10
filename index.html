@@ -6,11 +6,8 @@
     <title>John - Emotion Recognition</title>
     <link rel="stylesheet" href="./style.css">
     
-    <!-- TensorFlow.js - 훨씬 가벼움 -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+    <!-- face-api.js - 가볍고 안정적 -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 </head>
 <body>
     <!-- 로딩 화면 -->
@@ -31,8 +28,8 @@
         
         <main class="main-wrapper">
             <section class="video-container">
-                <video id="webcam" autoplay playsinline></video>
-                <canvas id="canvas"></canvas>
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="overlay"></canvas>
             </section>
             
             <aside class="emotion-panel">
@@ -59,7 +56,7 @@
         </main>
         
         <footer>
-            <p>Powered by TensorFlow.js | Created by Milky</p>
+            <p>Powered by face-api.js | Created by Milky</p>
             <p><small>⚠️ 웹캠 권한이 필요합니다</small></p>
         </footer>
     </div>
