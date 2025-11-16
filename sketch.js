@@ -29,27 +29,27 @@ let currentPracticeIndex = 11; // Start with 'joy'
 
 // Emotion images mapping (21 emotions)
 const emotionImages = {
-    'admiration': 'admiration.png',
-    'aggressiveness': 'aggressiveness.png',
-    'amazement': 'amazement.png',
-    'annoyance': 'annoyance.png',
-    'apprehension': 'apprehension.png',
-    'boredom': 'boredom.png',
-    'disappointment': 'disappointment.png',
-    'disgust': 'disgust.png',
-    'ecstasy': 'ecstasy.png',
-    'grief': 'grief.png',
-    'interest': 'interest.png',
-    'joy': 'joy.png',
-    'optimism': 'optimism.png',
-    'pensiveness': 'pensiveness.png',
-    'rage': 'rage.png',
-    'sadness': 'sadness.png',
-    'surprise': 'surprise.png',
-    'tears of joy': 'tears_of_joy.png',
-    'terror': 'terror.png',
-    'trust': 'trust.png',
-    'vigilance': 'vigilance.png'
+    'admiration': 'Admiration.png',
+    'aggressiveness': 'Aggressiveness.png',
+    'amazement': 'Amazement.png',
+    'annoyance': 'Annoyance.png',
+    'apprehension': 'Apprehension.png',
+    'boredom': 'Boredom.png',
+    'disappointment': 'Disappointment.png',
+    'disgust': 'Disgust.png',
+    'ecstasy': 'Ecstasy.png',
+    'grief': 'Grief.png',
+    'interest': 'Interest.png',
+    'joy': 'Joy.png',
+    'optimism': 'Optimism.png',
+    'pensiveness': 'Pensiveness.png',
+    'rage': 'Rage.png',
+    'sadness': 'Sadness.png',
+    'surprise': 'Surprise.png',
+    'tears of joy': 'Tears_of_joy.png',
+    'terror': 'Terror.png',
+    'trust': 'Trust.png',
+    'vigilance': 'Vigilance.png'
 };
 
 // Timeline data
