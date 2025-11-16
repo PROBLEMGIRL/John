@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>John - Educational Emotion Recognition</title>
+    <title>John - Educational Emotion Recognition (21 Emotions)</title>
     <link rel="stylesheet" href="./style.css">
     
     <!-- face-api.js -->
@@ -30,7 +30,7 @@
                 <img src="logo.png" alt="Logo" class="header-logo">
             </h1>
             <p class="subtitle">Educational Emotion Recognition Tool<br>
-                <span style="font-size: 0.9rem; opacity: 0.8;">Multi-face analysis & Interactive learning</span>
+                <span style="font-size: 0.9rem; opacity: 0.8;">Multi-face analysis & Interactive learning with 21 emotions</span>
             </p>
             
             <!-- Mode Selection -->
@@ -76,7 +76,7 @@
                     <!-- Individual faces -->
                     <div id="faces-list" class="faces-list">
                         <div class="no-face-message">
-                            <p>Waiting for faces...</p>
+                            <p>👤 Waiting for faces...</p>
                             <small>Position 1-5 people in camera view</small>
                         </div>
                     </div>
@@ -102,12 +102,15 @@
                 
                 <!-- Practice Mode Panel -->
                 <div id="practice-panel" class="mode-panel">
-                    <h2>Emotion Practice</h2>
+                    <h2>Emotion Practice (21 Emotions)</h2>
                     
                     <div class="practice-content">
                         <div class="target-emotion">
                             <h3>Try to express:</h3>
-                            <div class="emotion-target" id="target-emotion">Joy 😊</div>
+                            <div class="emotion-target-container">
+                                <img id="target-emotion-img" src="emotions/joy.png" alt="Joy" class="emotion-image">
+                                <div class="emotion-target" id="target-emotion">Joy</div>
+                            </div>
                             <button id="next-emotion-btn" class="practice-btn">Next Emotion</button>
                         </div>
                         
@@ -191,7 +194,7 @@
                 <h3>How to Use</h3>
                 <ul>
                     <li><strong>Analyze:</strong> See real-time emotions of multiple people</li>
-                    <li><strong>Practice:</strong> Train your emotion expressions</li>
+                    <li><strong>Practice:</strong> Train 21 different emotion expressions</li>
                     <li><strong>Compare:</strong> Compare emotions between people</li>
                     <li><strong>Timeline:</strong> Track emotion changes over time</li>
                 </ul>
@@ -206,23 +209,23 @@
                 </ul>
             </div>
             <div class="edu-card">
-                <h3>Educational Benefits</h3>
+                <h3>21 Emotions Available</h3>
                 <ul>
-                    <li>Practice and improve emotion recognition</li>
-                    <li>Learn about facial expression patterns</li>
-                    <li>Compare emotions in social contexts</li>
-                    <li>Track emotional awareness development</li>
+                    <li>admiration, aggressiveness, amazement, annoyance, apprehension</li>
+                    <li>boredom, disappointment, disgust, ecstasy, grief</li>
+                    <li>interest, joy, optimism, pensiveness, rage</li>
+                    <li>sadness, surprise, tears of joy, terror, trust, vigilance</li>
                 </ul>
             </div>
         </section>
         
         <footer>
-            <p>Hello<strong>John</strong> - Educational Emotion Recognition Tool</p>
-            <p><small>Powered by face-api.js | Created by hyeon</small></p>
+            <p><strong>John</strong> - Educational Emotion Recognition Tool (21 Emotions)</p>
+            <p><small>Powered by face-api.js </small></p>
             <p><small>⚠️ Camera permission required | Multi-face support up to 5 people</small></p>
         </footer>
     </div>
     
-    <script src="./sketch.js"></script>
+   <script src="./sketch.js"></script>
 </body>
 </html>

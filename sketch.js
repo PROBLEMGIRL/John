@@ -1,6 +1,6 @@
 /**
  * John - Educational Emotion Recognition
- * Multi-face detection with interactive learning modes
+ * Multi-face detection with 21 emotions
  */
 
 const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model';
@@ -16,11 +16,41 @@ let currentMode = 'analyze';
 // Multi-face data
 let allFaceData = [];
 
-// Practice mode
-let targetEmotion = 'Joy';
+// Practice mode with 21 emotions
+let targetEmotion = 'joy';
 let practiceHistory = [];
-const practiceEmotions = ['Joy', 'Sadness', 'Anger', 'Surprise', 'Fear', 'Disgust', 'Trust'];
-let currentPracticeIndex = 0;
+const practiceEmotions = [
+    'admiration', 'aggressiveness', 'amazement', 'annoyance', 'apprehension',
+    'boredom', 'disappointment', 'disgust', 'ecstasy', 'grief',
+    'interest', 'joy', 'optimism', 'pensiveness', 'rage',
+    'sadness', 'surprise', 'tears of joy', 'terror', 'trust', 'vigilance'
+];
+let currentPracticeIndex = 11; // Start with 'joy'
+
+// Emotion images mapping (21 emotions)
+const emotionImages = {
+    'admiration': 'emotions/admiration.png',
+    'aggressiveness': 'emotions/aggressiveness.png',
+    'amazement': 'emotions/amazement.png',
+    'annoyance': 'emotions/annoyance.png',
+    'apprehension': 'emotions/apprehension.png',
+    'boredom': 'emotions/boredom.png',
+    'disappointment': 'emotions/disappointment.png',
+    'disgust': 'emotions/disgust.png',
+    'ecstasy': 'emotions/ecstasy.png',
+    'grief': 'emotions/grief.png',
+    'interest': 'emotions/interest.png',
+    'joy': 'emotions/joy.png',
+    'optimism': 'emotions/optimism.png',
+    'pensiveness': 'emotions/pensiveness.png',
+    'rage': 'emotions/rage.png',
+    'sadness': 'emotions/sadness.png',
+    'surprise': 'emotions/surprise.png',
+    'tears of joy': 'emotions/tears_of_joy.png',
+    'terror': 'emotions/terror.png',
+    'trust': 'emotions/trust.png',
+    'vigilance': 'emotions/vigilance.png'
+};
 
 // Timeline data
 let timelineData = [];
@@ -29,45 +59,45 @@ let timelineChart = null;
 let lastDominantEmotion = null;
 let emotionChangeCount = 0;
 
-// Emotion Library
+// 21 Emotion Library
 const emotionLibrary = {
     'neutral': [
-        { name: 'Trust', weight: 0.3, emoji: '🤝' },
-        { name: 'Pensiveness', weight: 0.25, emoji: '🤔' },
-        { name: 'Interest', weight: 0.2, emoji: '👀' },
-        { name: 'Admiration', weight: 0.15, emoji: '😌' }
+        { name: 'trust', weight: 0.3 },
+        { name: 'pensiveness', weight: 0.25 },
+        { name: 'interest', weight: 0.2 },
+        { name: 'admiration', weight: 0.15 }
     ],
     'happy': [
-        { name: 'Joy', weight: 0.4, emoji: '😊' },
-        { name: 'Optimism', weight: 0.3, emoji: '🌟' },
-        { name: 'Ecstasy', weight: 0.2, emoji: '😄' },
-        { name: 'Serenity', weight: 0.15, emoji: '😌' }
+        { name: 'joy', weight: 0.4 },
+        { name: 'optimism', weight: 0.3 },
+        { name: 'ecstasy', weight: 0.2 },
+        { name: 'tears of joy', weight: 0.15 }
     ],
     'sad': [
-        { name: 'Sadness', weight: 0.35, emoji: '😢' },
-        { name: 'Grief', weight: 0.25, emoji: '😭' },
-        { name: 'Pensiveness', weight: 0.2, emoji: '😔' },
-        { name: 'Disappointment', weight: 0.15, emoji: '😞' }
+        { name: 'sadness', weight: 0.35 },
+        { name: 'grief', weight: 0.25 },
+        { name: 'pensiveness', weight: 0.2 },
+        { name: 'disappointment', weight: 0.15 }
     ],
     'angry': [
-        { name: 'Anger', weight: 0.35, emoji: '😠' },
-        { name: 'Rage', weight: 0.3, emoji: '😡' },
-        { name: 'Annoyance', weight: 0.25, emoji: '😤' },
-        { name: 'Aggressiveness', weight: 0.15, emoji: '🤬' }
+        { name: 'anger', weight: 0.35 },
+        { name: 'rage', weight: 0.3 },
+        { name: 'annoyance', weight: 0.25 },
+        { name: 'aggressiveness', weight: 0.15 }
     ],
     'fearful': [
-        { name: 'Fear', weight: 0.35, emoji: '😨' },
-        { name: 'Terror', weight: 0.3, emoji: '😱' },
-        { name: 'Apprehension', weight: 0.25, emoji: '😰' },
-        { name: 'Vigilance', weight: 0.2, emoji: '👁️' }
+        { name: 'fear', weight: 0.35 },
+        { name: 'terror', weight: 0.3 },
+        { name: 'apprehension', weight: 0.25 },
+        { name: 'vigilance', weight: 0.2 }
     ],
     'disgusted': [
-        { name: 'Disgust', weight: 0.4, emoji: '🤢' },
-        { name: 'Boredom', weight: 0.3, emoji: '😑' }
+        { name: 'disgust', weight: 0.4 },
+        { name: 'boredom', weight: 0.3 }
     ],
     'surprised': [
-        { name: 'Surprise', weight: 0.4, emoji: '😲' },
-        { name: 'Amazement', weight: 0.3, emoji: '😮' }
+        { name: 'surprise', weight: 0.4 },
+        { name: 'amazement', weight: 0.3 }
     ]
 };
 
@@ -268,7 +298,6 @@ function analyzeMultipleFaces(detections) {
             emotionLibrary[dominant.type].forEach(emotion => {
                 allEmotions.push({
                     name: emotion.name,
-                    emoji: emotion.emoji,
                     intensity: dominant.value * emotion.weight,
                     baseEmotion: dominant.type
                 });
@@ -310,7 +339,7 @@ function updateAnalyzeMode() {
     const facesList = document.getElementById('faces-list');
     
     if (allFaceData.length === 0) {
-        facesList.innerHTML = '<div class="no-face-message"><p>👤 Waiting for faces...</p><small>Position 1-5 people in camera view</small></div>';
+        facesList.innerHTML = '<div class="no-face-message"><p>Waiting for faces...</p><small>Position 1-5 people in camera view</small></div>';
         return;
     }
     
@@ -321,12 +350,12 @@ function updateAnalyzeMode() {
             <div class="face-card" style="border-left: 4px solid ${face.color}">
                 <div class="face-header">
                     <span class="face-id" style="color: ${face.color}">Person #${face.id}</span>
-                    <span class="face-emotion">${face.topEmotions[0].emoji} ${face.topEmotions[0].name}</span>
+                    <span class="face-emotion">${face.topEmotions[0].name}</span>
                 </div>
                 <div class="face-emotions">
                     ${face.topEmotions.slice(0, 3).map(e => `
                         <div class="emotion-mini">
-                            <span>${e.emoji} ${e.name}</span>
+                            <span>${e.name}</span>
                             <span>${(e.intensity * 100).toFixed(0)}%</span>
                         </div>
                     `).join('')}
@@ -379,7 +408,7 @@ function updateGroupStats() {
     document.getElementById('diversity-score').textContent = `${diversity}%`;
 }
 
-// Practice Mode
+// Practice Mode - 21 emotions
 function updatePracticeMode() {
     if (allFaceData.length === 0) {
         document.getElementById('practice-score').textContent = '0%';
@@ -391,22 +420,35 @@ function updatePracticeMode() {
     // Use first face for practice
     const face = allFaceData[0];
     
-    // Calculate match score
-    const targetEmotionLower = targetEmotion.toLowerCase();
+    // Calculate match score based on target emotion
     let matchScore = 0;
     
-    // Map practice emotions to base emotions
-    const emotionMap = {
-        'Joy': 'happy',
-        'Sadness': 'sad',
-        'Anger': 'angry',
-        'Surprise': 'surprised',
-        'Fear': 'fearful',
-        'Disgust': 'disgusted',
-        'Trust': 'neutral'
+    // Map 21 emotions to base emotions for scoring
+    const emotionToBase = {
+        'admiration': 'neutral',
+        'aggressiveness': 'angry',
+        'amazement': 'surprised',
+        'annoyance': 'angry',
+        'apprehension': 'fearful',
+        'boredom': 'disgusted',
+        'disappointment': 'sad',
+        'disgust': 'disgusted',
+        'ecstasy': 'happy',
+        'grief': 'sad',
+        'interest': 'neutral',
+        'joy': 'happy',
+        'optimism': 'happy',
+        'pensiveness': 'sad',
+        'rage': 'angry',
+        'sadness': 'sad',
+        'surprise': 'surprised',
+        'tears of joy': 'happy',
+        'terror': 'fearful',
+        'trust': 'neutral',
+        'vigilance': 'fearful'
     };
     
-    const targetBase = emotionMap[targetEmotion];
+    const targetBase = emotionToBase[targetEmotion];
     matchScore = (face.expressions[targetBase] || 0) * 100;
     
     // Update display
@@ -431,22 +473,21 @@ function nextPracticeEmotion() {
     currentPracticeIndex = (currentPracticeIndex + 1) % practiceEmotions.length;
     targetEmotion = practiceEmotions[currentPracticeIndex];
     
-    const emoji = {
-        'Joy': '😊',
-        'Sadness': '😢',
-        'Anger': '😠',
-        'Surprise': '😲',
-        'Fear': '😨',
-        'Disgust': '🤢',
-        'Trust': '🤝'
-    }[targetEmotion];
+    // Update image
+    const imgElement = document.getElementById('target-emotion-img');
+    if (imgElement) {
+        imgElement.src = emotionImages[targetEmotion];
+        imgElement.alt = targetEmotion;
+    }
     
-    document.getElementById('target-emotion').textContent = `${targetEmotion} ${emoji}`;
+    // Update text (capitalize first letter)
+    const displayName = targetEmotion.charAt(0).toUpperCase() + targetEmotion.slice(1);
+    document.getElementById('target-emotion').textContent = displayName;
     
     // Add to history
     if (allFaceData.length > 0) {
         const score = document.getElementById('practice-score').textContent;
-        practiceHistory.unshift({ emotion: targetEmotion, score: score });
+        practiceHistory.unshift({ emotion: displayName, score: score });
         practiceHistory = practiceHistory.slice(0, 5);
         
         updatePracticeHistory();
@@ -477,11 +518,11 @@ function updateCompareMode() {
     // Create comparison cards
     let html = '';
     allFaceData.forEach(face => {
+        const displayName = face.topEmotions[0].name.charAt(0).toUpperCase() + face.topEmotions[0].name.slice(1);
         html += `
             <div class="compare-card" style="border-top: 3px solid ${face.color}">
                 <div class="compare-header">Person #${face.id}</div>
-                <div class="compare-emotion">${face.topEmotions[0].emoji}</div>
-                <div class="compare-label">${face.topEmotions[0].name}</div>
+                <div class="compare-emotion-name">${displayName}</div>
                 <div class="compare-percentage">${(face.dominant.value * 100).toFixed(0)}%</div>
             </div>
         `;
@@ -660,7 +701,7 @@ function showNoFace() {
     document.getElementById('face-count-display').textContent = '0 faces detected';
     
     if (currentMode === 'analyze') {
-        document.getElementById('faces-list').innerHTML = '<div class="no-face-message"><p>👤 Waiting for faces...</p><small>Position 1-5 people in camera view</small></div>';
+        document.getElementById('faces-list').innerHTML = '<div class="no-face-message"><p>Waiting for faces...</p><small>Position 1-5 people in camera view</small></div>';
         document.getElementById('group-emotion-bars').innerHTML = '';
         document.getElementById('most-common-emotion').textContent = '-';
         document.getElementById('diversity-score').textContent = '-';

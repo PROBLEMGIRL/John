@@ -436,6 +436,22 @@ header {
     font-size: 1.1rem;
 }
 
+
+.emotion-target-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.emotion-image {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
 .emotion-target {
     font-size: 2.5rem;
     margin: 1rem 0;
@@ -795,5 +811,30 @@ footer p {
     
     .comparison-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* 감정 이미지 추가 반응형 스타일 */
+@media (max-width: 768px) {
+    .emotion-image {
+        max-width: 150px;
+    }
+    
+    .emotion-target {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .emotion-image {
+        max-width: 120px;
+    }
+    
+    .emotion-target {
+        font-size: 1.5rem;
+    }
+    
+    .score-value {
+        font-size: 2.2rem;
     }
 }
