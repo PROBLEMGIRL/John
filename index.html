@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>John - Emotion Recognition</title>
+    <title>John - Educational Emotion Recognition</title>
     <link rel="stylesheet" href="./style.css">
     
     <!-- face-api.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- Chart.js for timeline -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     
     <!-- Loading Screen -->
     <div id="loading">
-        <!-- 로딩 화면 로고 -->
         <img src="logo1.png" alt="Logo" class="logo">
-        
         <div class="loader"></div>
         <p id="loading-text">Loading AI Model...</p>
         <div class="progress-bar">
@@ -26,46 +26,200 @@
 
     <div class="container">
         <header>
-            <!-- 헤더 로고 - 인라인 스타일 제거, 클래스 추가 -->
             <h1>
                 <img src="logo.png" alt="Logo" class="header-logo">
             </h1>
-            <p class="subtitle">Emotion Technology :<br> AI analyzes human emotions in real-time</p>
+            <p class="subtitle">Educational Emotion Recognition Tool<br>
+                <span style="font-size: 0.9rem; opacity: 0.8;">Multi-face analysis & Interactive learning</span>
+            </p>
+            
+            <!-- Mode Selection -->
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="analyze">
+                    <span class="mode-icon"></span>
+                    <span>Analyze</span>
+                </button>
+                <button class="mode-btn" data-mode="practice">
+                    <span class="mode-icon"></span>
+                    <span>Practice</span>
+                </button>
+                <button class="mode-btn" data-mode="compare">
+                    <span class="mode-icon"></span>
+                    <span>Compare</span>
+                </button>
+                <button class="mode-btn" data-mode="timeline">
+                    <span class="mode-icon"></span>
+                    <span>Timeline</span>
+                </button>
+            </div>
         </header>
         
         <main class="main-wrapper">
+            <!-- Video Section -->
             <section class="video-container">
                 <video id="video" autoplay muted playsinline></video>
                 <canvas id="overlay"></canvas>
+                
+                <!-- Face count indicator -->
+                <div class="face-indicator">
+                    <span id="face-count-display">0 faces detected</span>
+                </div>
             </section>
             
-            <aside class="emotion-panel">
-                <h2 style="text-align:center;">Detected Emotion Spectrum</h2>
-
-                <div id="emotion-display">
-                    <div class="no-face">Please position your face in the center</div>
+            <!-- Right Panel -->
+            <aside class="control-panel">
+                
+                <!-- Analyze Mode Panel -->
+                <div id="analyze-panel" class="mode-panel active">
+                    <h2>Multi-Face Analysis</h2>
+                    
+                    <!-- Individual faces -->
+                    <div id="faces-list" class="faces-list">
+                        <div class="no-face-message">
+                            <p>Waiting for faces...</p>
+                            <small>Position 1-5 people in camera view</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Group statistics -->
+                    <div class="group-stats">
+                        <h3>Group Emotions</h3>
+                        <div id="group-emotion-bars" class="emotion-bars">
+                            <!-- Will be populated by JS -->
+                        </div>
+                        <div class="group-summary">
+                            <div class="summary-item">
+                                <span class="label">Most Common:</span>
+                                <span class="value" id="most-common-emotion">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Diversity Score:</span>
+                                <span class="value" id="diversity-score">-</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="label">Dominant Emotion:</span>
-                        <span class="value" id="dominant-emotion">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="label">Faces Detected:</span>
-                        <span class="value" id="face-count">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="label">FPS:</span>
-                        <span class="value" id="fps">0</span>
+                <!-- Practice Mode Panel -->
+                <div id="practice-panel" class="mode-panel">
+                    <h2>Emotion Practice</h2>
+                    
+                    <div class="practice-content">
+                        <div class="target-emotion">
+                            <h3>Try to express:</h3>
+                            <div class="emotion-target" id="target-emotion">Joy 😊</div>
+                            <button id="next-emotion-btn" class="practice-btn">Next Emotion</button>
+                        </div>
+                        
+                        <div class="practice-feedback">
+                            <div class="score-display">
+                                <div class="score-label">Match Score</div>
+                                <div class="score-value" id="practice-score">0%</div>
+                            </div>
+                            <div class="progress-bar-practice">
+                                <div class="progress-fill-practice" id="practice-progress"></div>
+                            </div>
+                            <div class="feedback-message" id="practice-feedback">
+                                Position your face and try the emotion!
+                            </div>
+                        </div>
+                        
+                        <div class="practice-stats">
+                            <h4>Your Progress</h4>
+                            <div id="practice-history" class="practice-history">
+                                <!-- Will show recent attempts -->
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Compare Mode Panel -->
+                <div id="compare-panel" class="mode-panel">
+                    <h2>Emotion Comparison</h2>
+                    
+                    <div class="compare-content">
+                        <p class="compare-instruction">Compare emotions between multiple people</p>
+                        
+                        <div id="comparison-grid" class="comparison-grid">
+                            <!-- Will be populated with face comparisons -->
+                        </div>
+                        
+                        <div class="comparison-insights">
+                            <h4>Insights</h4>
+                            <div id="comparison-insights-text">
+                                Position multiple people to see comparisons
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline Mode Panel -->
+                <div id="timeline-panel" class="mode-panel">
+                    <h2>📊 Emotion Timeline</h2>
+                    
+                    <div class="timeline-controls">
+                        <button id="timeline-reset" class="timeline-btn">Reset Data</button>
+                        <span id="timeline-duration">Duration: 0s</span>
+                    </div>
+                    
+                    <div class="timeline-chart-container">
+                        <canvas id="timeline-chart"></canvas>
+                    </div>
+                    
+                    <div class="timeline-stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Peak Emotion</div>
+                            <div class="stat-value" id="peak-emotion">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Average State</div>
+                            <div class="stat-value" id="avg-emotion">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Changes</div>
+                            <div class="stat-value" id="emotion-changes">0</div>
+                        </div>
+                    </div>
+                </div>
+                
             </aside>
         </main>
         
+        <!-- Educational Info Section -->
+        <section class="edu-section">
+            <div class="edu-card">
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Analyze:</strong> See real-time emotions of multiple people</li>
+                    <li><strong>Practice:</strong> Train your emotion expressions</li>
+                    <li><strong>Compare:</strong> Compare emotions between people</li>
+                    <li><strong>Timeline:</strong> Track emotion changes over time</li>
+                </ul>
+            </div>
+            <div class="edu-card">
+                <h3>Multi-Face Features</h3>
+                <ul>
+                    <li>Detect up to 5 faces simultaneously</li>
+                    <li>Individual emotion analysis for each person</li>
+                    <li>Group emotion statistics and insights</li>
+                    <li>Perfect for classroom or group activities</li>
+                </ul>
+            </div>
+            <div class="edu-card">
+                <h3>Educational Benefits</h3>
+                <ul>
+                    <li>Practice and improve emotion recognition</li>
+                    <li>Learn about facial expression patterns</li>
+                    <li>Compare emotions in social contexts</li>
+                    <li>Track emotional awareness development</li>
+                </ul>
+            </div>
+        </section>
+        
         <footer>
-            <p>Powered by face-api.js | Created by hyeon</p>
-            <p><small>⚠️ Camera permission required</small></p>
+            <p>Hello<strong>John</strong> - Educational Emotion Recognition Tool</p>
+            <p><small>Powered by face-api.js | Created by hyeon</small></p>
+            <p><small>⚠️ Camera permission required | Multi-face support up to 5 people</small></p>
         </footer>
     </div>
     
